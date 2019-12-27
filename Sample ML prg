@@ -1,0 +1,36 @@
+#In this note, we are going to write a prg to create, train a and test a Deep learning based ML model using tensorflow 2.0.0
+#import the header files
+import tensorflow as tf
+import numpy as np
+#lets use the mnist dataset as our dataset for the first prg.( It's a dataset of hand-written digits, 0 through 9. It's 28x28 images of these hand-written digits.)
+mnist=tf.keras.datasets.mnist
+#now lets take some data from the database for training and testing purpose.
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+#So the x_train data is the "features." In this case, the features are pixel values of the 28x28 images of these digits 0-9. The y_train is the label (is it a 0,1,2,3,4,5,6,7,8 or a 9?)
+#We have tpo normalize our feature between 0 and 1 or -1 and 1.
+x_train, x_test = x_train / 255.0, x_test / 255.0
+#now let's build our model !!!
+model = tf.keras.models.Sequential()
+#sequential model means only feed forward, no back propogation.Now we need to pop in the layers.
+model.add(tf.keras.layers.Flatten())
+#this input layer converts the 28*28 img pixels into 1*784, since our NN is flat.
+#the next layer acts as the hidden layer, adn we're using RELU layer as our activation function.
+model.add(tf.keras.layers.Dense(128, activation='relu'))
+#we now use the Dropout function. Dropout is a technique used to prevent a model from overfitting. Dropout works by randomly setting the outgoing edges of hidden units (neurons that make up hidden layers) to 0 at each update of the training phase
+model.add(tf.keras.layers.Dropout(0.2))
+#now for the output layer
+model.add(tf.keras.layers.Dense(10, activation='softmax')
+#This is our final layer. It has 10 nodes. 1 node per possible number prediction. In this case, our activation function is a softmax function, since we're really actually looking for something more like a probability distribution of which of the possible prediction options this thing we're passing features through of is. Great, our model is done.
+#now we need to compile the model, this is where we pass the settings for actually optimizing/training the model we've built.
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+#we use adam as a default function to go to. loss is a calculation of error, an NN does'nt actually try to maximize accuracy, it attempts to minimize loss.
+#now we fit
+model.fit(x_train, y_train, epochs=5)
+#Now that's loss and accuracy for in-sample data. Getting a high accuracy and low loss might mean your model learned how to classify digits in general (it generalized)...or it simply memorized every single example you showed it (it overfit). This is why we need to test on out-of-sample data (data we didn't use to train the model).
+model.evaluate(x_test, y_test, verbose=2)
+model.save('newmodel.model') #saving the model
+new_model=tf.keras.load_mode('newmodel.model') #load it back
+predictions = new_model.predict(x_test) #making predictions
+print(predictions) 
+print(np.argmax(predictions[0]))
+#ta da !!!
