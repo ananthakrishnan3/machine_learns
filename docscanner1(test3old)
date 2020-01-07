@@ -26,12 +26,15 @@ cnts=sorted(cnts, key=cv2.contourArea, reverse=True)
 for c in cnts:
     #find the perimeter by counting the number of closed loops.. i think so
     peri=cv2.arcLength(c,True)
-minL= 500
-maxL=5
-lines=cv2.HoughLinesP(edged, 1, np.pi/180, 90, minL, maxL)
-#for x in range(0, len(lines)):
-#for x1, y1, x2, y2 in lines(x):
-#cv2.line(edged, (x1,y1), (x2,y2), (0,255,0), 2)
-peri1=np.array(peri).reshape((-1,1)).astype(np.int32)
-cv2.drawContours(edged,[peri],-1, (0,255,0),3)
-cv2.imshow('outline', edged)
+    approx=cv2.approxPolyDP(c, .02*peri, True)
+    print(approx)
+    #if the approximated contour has n number of corners, then we assume we have found our screen
+    #if len(approx) == u:
+    screencnt=approx
+    break
+    
+#showing the contour of the shape
+cv2.drawContours(img, [screencnt], -1, (0, 255, 0), 2)
+cv2.imshow('outline', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
